@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}標題{% endblock %}</title>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        {% block content %}
+        <!-- 預設的內容區塊 -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <!-- 頁尾 -->
+        <p>&copy; R-DAP, Inc.</p>
+    </footer>
+</body>
+</html>

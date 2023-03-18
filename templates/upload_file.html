@@ -2,9 +2,9 @@
 
 {% block content %}
     <h1>檔案上傳</h1>
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" >
         {% csrf_token %}
-        <input type="file" name="file">
+        <input type="file" name="file" autocomplete="off" required multiple>
         <button type="submit">上傳</button>
     </form>
     {% if message %}

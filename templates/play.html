@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lanf="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Play</title>
+    </head>
+    <body>
+        <h1>File List</h1>
+        <ul>
+            {% for file in media_files%}
+            <li><a href="{{file}}" target="_blank">{{file}}</a></li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

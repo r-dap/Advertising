@@ -4,14 +4,17 @@ from django.conf import settings
 from django import forms
 from django.core.files.storage import FileSystemStorage
 import os
+import subprocess
 
-# Create your views here.
+# Class for verify if the file is selected in function of upload_file
 class UploadFileForm(forms.Form):
     file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
+# Home page
 def index(request):
     return render(request,'index.html')
 
+# Upload page
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -27,6 +30,7 @@ def upload_file(request):
         form = UploadFileForm()
     return render(request, 'upload_file.html', {'form': form})
 
+# Play page
 def play(request):
     # 取得目標目錄的路徑
     directory = os.path.join(settings.MEDIA_ROOT)
@@ -39,10 +43,13 @@ def play(request):
     }
     return render(request, 'play.html', context)
 
+# Choose file that need to be opened in play page
 def show_file(request, file_path):
     try:
-        with open(os.path.join(settings.MEDIA_ROOT, file_path), 'rb') as f:
-            file_data = f.read()
-        return HttpResponse(file_data, content_type='application/octet-stream')
+        file_full_path = os.path.join(settings.MEDIA_ROOT, file_path)
+        subprocess.run(['xdg-open', file_full_path]) # Linux/Mac
+        # subprocess.run(['open', file_full_path]) # MacOS
+        # subprocess.run(['start', '', file_full_path], shell=True) # Windows
+        return HttpResponse("File opened")
     except:
         return HttpResponse("File not found")

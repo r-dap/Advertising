@@ -11,10 +11,6 @@ class UploadFileForm(forms.Form):
     file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
 # Home page
-def index(request):
-    return render(request,'index.html')
-
-# Upload page
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -47,8 +43,8 @@ def play(request):
 def show_file(request, file_path):
     try:
         file_full_path = os.path.join(settings.MEDIA_ROOT, file_path)
-        subprocess.run(['xdg-open', file_full_path]) # Linux/Mac
-        # subprocess.run(['open', file_full_path]) # MacOS
+        # subprocess.run(['xdg-open', file_full_path]) # Linux/Mac
+        subprocess.run(['open', file_full_path]) # MacOS
         # subprocess.run(['start', '', file_full_path], shell=True) # Windows
         return HttpResponse("File opened")
     except:

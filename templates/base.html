@@ -1,21 +1,57 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}標題{% endblock %}</title>
-</head>
-<body>
-    <header></header>
+<html lanf="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Advertisement</title>
+    </head>
 
-    <main>
-        {% block content %}
-        <!-- 預設的內容區塊 -->
-        {% endblock %}
-    </main>
+    <style>
+        h1 {
+            text-align: center;
+            padding: 15px;
+            font-size: 45px;
+        }
 
-    <footer>
-        <!-- 頁尾 -->
-        <p>&copy; R-DAP, Inc.</p>
-    </footer>
-</body>
+        h3 {
+            font-size: 30px;
+            padding-left: 20px;
+        }
+
+        hr {
+            margin: 20px;
+        }
+
+        form input{
+            font-size: 25px;
+            padding: 20px;
+            color: red;
+            width: auto;
+            height: auto;
+        }
+
+        button {
+            font-size: 15px;
+            margin: 20px;
+        }
+
+        p {
+            padding-left: 25px;
+        }
+
+    </style>
+
+    <body>
+        <header>
+            <h1>Homepage</h1>
+        </header>
+        <!-- <button onclick="location.href='upload'">Go to upload</button> -->
+
+        <main>
+            {% block content %}
+            <!-- 預設的內容區塊 -->
+            {% endblock %}
+        </main>
+        <hr>
+        
+    </body>
 </html>

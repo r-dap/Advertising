@@ -7,9 +7,23 @@
     <body>
         <h1>File List</h1>
         <ul>
-            {% for file in media_files%}
-            <li><a href="{{file}}" target="_blank">{{file}}</a></li>
+            {% for file in media_files %}
+
+            <li>{{ file|slice:"7:" }}</li>
+
+            <form action="/play/" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="file" value="{{ file }}">
+                <button type="submit" formaction="{{ file }}/" target="_blank">Play</button> 
+
+                <button type="submit" formaction="/delete/">Delete</button>
+                
+            </form>
+                
+
             {% endfor %}
+            <!--a button turn back to upload.html-->
+            <h2><a href="/">Back to Upload</a></h2>
         </ul>
     </body>
 </html>

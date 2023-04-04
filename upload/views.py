@@ -43,10 +43,8 @@ def play(request):
 
 # Choose file that need to be opened in play page
 def show_file(request, file_path):
-      
     try:
         file_full_path = os.path.join(settings.MEDIA_ROOT, file_path)
-
         subprocess.run(['xdg-open', file_full_path]) # Linux/Mac
         # subprocess.run(['open', file_full_path]) # MacOS
         # subprocess.run(['start', '', file_full_path], shell=True) # Windows

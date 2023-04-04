@@ -3,27 +3,45 @@
     <head>
         <meta charset="utf-8">
         <title>Play</title>
+        <script>
+            function confirmDelete() {
+                return confirm("確定要刪除嗎？");
+            }
+            // 再按播放按鈕時，會把playbutton裡面的value的值，放到id為current_playing_file的標籤裡面
+            function playFile(button){
+                
+                // var fileInput = document.getElementsByName("playButton")[0];
+                console.log(button);
+                var currentFile = document.getElementById("current_playing_file");
+
+                currentFile.innerHTML = "正在播放：" + button.value;
+            }
+        </script>
     </head>
     <body>
         <h1>File List</h1>
         <ul>
             {% for file in media_files %}
 
-            <li>{{ file|slice:"7:" }}</li>
+            <li>
+                {{ file|slice:"7:" }}
+            </li>
 
-            <form action="/play/" method="post">
+            <form action="javascript:void(0);" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="file" value="{{ file }}">
-                <button type="submit" formaction="{{ file }}/" target="_blank">Play</button> 
-
-                <button type="submit" formaction="/delete/">Delete</button>
-                
+                <!-- 在下面那個按鈕，增加一個觸發事件 -->
+                <button onclick="playFile(this)" type="submit" name="playButton" value="{{file|slice:'7:'}}" formaction="{{ file }}/" target="_blank">Play</button> 
+                <button onclick="return confirmDelete();" type="submit" formaction="/delete/">Delete</button>               
             </form>
-                
-
+            
             {% endfor %}
+
             <!--a button turn back to upload.html-->
             <h2><a href="/">Back to Upload</a></h2>
         </ul>
+        <div>
+            <h3 id="current_playing_file"></h3>
+        </div>
     </body>
 </html>

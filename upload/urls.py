@@ -7,5 +7,6 @@ urlpatterns = [
     path('', views.upload_file,name='upload file'),
     path('play/',views.play),
     path('delete/',views.delete,name='delete'),
-    path('media/<path:file_path>/',views.show_file,name='show file')
+    path('media/<path:file_path>/',views.show_file,name='show file'),
+    path('controlplayer/',views.control_player,name='control player')
 ]

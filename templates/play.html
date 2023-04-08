@@ -3,18 +3,99 @@
     <head>
         <meta charset="utf-8">
         <title>Play</title>
+        <style>
+            #pause-btn, #stop-btn, #PlayorPause {
+                display: none;
+            }
+        </style>
         <script>
+            var count = 0;
             function confirmDelete() {
                 return confirm("確定要刪除嗎？");
             }
+
             // 再按播放按鈕時，會把playbutton裡面的value的值，放到id為current_playing_file的標籤裡面
             function playFile(button){
                 
-                // var fileInput = document.getElementsByName("playButton")[0];
-                console.log(button);
                 var currentFile = document.getElementById("current_playing_file");
-
+                var pauseBtn = document.getElementById("pause-btn");
+                var stopBtn = document.getElementById("stop-btn");
+                var pauseText = document.getElementById("pause_text");
+                var PlayorPause = document.getElementById("PlayorPause");
+                pauseBtn.style.display = "inline";
+                stopBtn.style.display = "inline";
+                PlayorPause.style.display = "inline";
                 currentFile.innerHTML = "正在播放：" + button.value;
+                pauseText.innerHTML = "暫停";
+                PlayorPause.innerHTML = "播放中";
+            }
+            function pause(event){
+                event.preventDefault();
+                var currentFile = document.getElementById("current_playing_file");
+                var pauseBtn = document.getElementById("pause-btn");
+                var pauseText = document.getElementById("pause_text");
+                var PlayorPause = document.getElementById("PlayorPause");
+                pauseBtn.disabled = true;
+                count += 1;
+                if (count % 2 == 0){
+                    pauseText.innerHTML = "暫停";
+                    PlayorPause.innerHTML = "播放中";
+                }
+                else{
+                    pauseText.innerHTML = "繼續";
+                    PlayorPause.innerHTML = "已暫停";
+                }
+                
+                console.log('{% url "control player" %}');
+                fetch('{% url "control player" %}',{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({'action': 'Pause'})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+                    .finally(() => {
+                        pauseBtn.disabled = false;
+                    })
+            }
+            function stop_playing(event){
+                count = 0
+                event.preventDefault();
+                
+                var currentFile = document.getElementById("current_playing_file");
+                var pauseBtn = document.getElementById("pause-btn");
+                var stopBtn = document.getElementById("stop-btn");
+                var PlayorPause = document.getElementById("PlayorPause");
+                pauseBtn.style.display = "none";
+                stopBtn.style.display = "none";
+                PlayorPause.style.display = "none";
+                currentFile.innerHTML = "影片已關閉";
+                fetch('{% url "control player" %}',{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({'action': 'Stop'})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+                    .finally(() => {
+                        stop_btn.disabled = false;
+                    })
             }
         </script>
     </head>
@@ -32,7 +113,8 @@
                 <input type="hidden" name="file" value="{{ file }}">
                 <!-- 在下面那個按鈕，增加一個觸發事件 -->
                 <button onclick="playFile(this)" type="submit" name="playButton" value="{{file|slice:'7:'}}" formaction="{{ file }}/" target="_blank">Play</button> 
-                <button onclick="return confirmDelete();" type="submit" formaction="/delete/">Delete</button>               
+                
+                <button onclick="return confirmDelete();" type="submit" formaction="/delete/">Delete</button>  
             </form>
             
             {% endfor %}
@@ -42,6 +124,10 @@
         </ul>
         <div>
             <h3 id="current_playing_file"></h3>
+            <h4 id="PlayorPause"></h4>
+            <button id="pause-btn" onclick="pause(event)"><p id="pause_text"></p></button>
+            <button id="stop-btn" onclick="stop_playing(event)"><p>關閉</p></button>
+            
         </div>
     </body>
 </html>

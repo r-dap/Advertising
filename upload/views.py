@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse, JsonResponse
 from django.conf import settings
 from django import forms
 from django.core.files.storage import FileSystemStorage
 import os
 import subprocess
-
+import json
+import signal
 
 # Class for verify if the file is selected in function of upload_file
 class UploadFileForm(forms.Form):
@@ -72,4 +73,24 @@ def delete_file(file_path):
     print(file_full_path, type(file_full_path))
     os.remove(file_full_path)
     return '檔案刪除成功！'
-    
+
+def control_player(request):
+    if request.method == 'POST':
+        
+        data = json.loads(request.body)
+      
+        action = data.get('action')
+
+        if action == 'Pause':
+            subprocess.run(['xdotool','key','space'])
+        
+        # 關閉還不能用
+        elif action == 'Stop':
+            process = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
+            out, err = process.communicate()
+            for line in out.splitlines():
+                if b'vlc' in line:
+                    pid = int(line.split(None, 1)[0])
+                    print("Killing process: ", pid, "")
+                    os.kill(pid, signal.SIGKILL)
+    return JsonResponse({'message':'success'})

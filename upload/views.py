@@ -46,6 +46,8 @@ def play(request):
 def show_file(request, file_path):
     try:
         file_full_path = os.path.join(settings.MEDIA_ROOT, file_path)
+        print('show_file : ',file_full_path)
+        print('show_file : ',file_path)
         subprocess.run(['xdg-open', file_full_path]) # Linux/Mac
         # subprocess.run(['open', file_full_path]) # MacOS
         # subprocess.run(['start', '', file_full_path], shell=True) # Windows
@@ -68,9 +70,10 @@ def delete(request):
 
 # Delete file
 def delete_file(file_path):
-    
-    file_full_path = '/home/you/桌面/advertising/' + file_path
-    print(file_full_path, type(file_full_path))
+    file_path = file_path[7:]
+    file_full_path = os.path.join(settings.MEDIA_ROOT, file_path)
+    print('delete_file : ',file_full_path)
+    print('delete_file : ',file_path)
     os.remove(file_full_path)
     return '檔案刪除成功！'
 

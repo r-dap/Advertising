@@ -49,56 +49,57 @@
                     pauseText.innerHTML = "繼續";
                     PlayorPause.innerHTML = "已暫停";
                 }
-                
-                console.log('{% url "control player" %}');
-                fetch('{% url "control player" %}',{
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
+                // 傳送暫停或繼續的指令給後端
+                fetch('{% url "control player" %}',{ // 傳送指令給叫control player的url
+                    method: 'POST', // 使用POST方法
+                    headers: { // 傳送的資料格式
+                        'Content-Type': 'application/json', // json格式
+                        'X-CSRFToken': '{{ csrf_token }}' // csrf_token
                     },
-                    body: JSON.stringify({'action': 'Pause'})
+                    body: JSON.stringify({'action': 'Pause'}) // 傳送Pause的action給後端
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
+                    .then(response => response.json()) // 回傳的資料轉成json格式
+                    .then(data => { // 回傳的資料
+                        console.log(data); // 印出回傳的資料
                     })
-                    .catch(error => {
-                        console.log(error);
+                    .catch(error => { // 如果有錯誤
+                        console.log(error); // 印出錯誤
                     })
-                    .finally(() => {
-                        pauseBtn.disabled = false;
+                    .finally(() => { // 結束後
+                        pauseBtn.disabled = false; // 暫停按鈕可以按
                     })
             }
+            // 停止按鈕功能
             function stop_playing(event){
-                count = 0
-                event.preventDefault();
+                count = 0 // 暫停次數歸零
+                event.preventDefault(); //  防止瀏覽器預設行為
                 
-                var currentFile = document.getElementById("current_playing_file");
-                var pauseBtn = document.getElementById("pause-btn");
-                var stopBtn = document.getElementById("stop-btn");
-                var PlayorPause = document.getElementById("PlayorPause");
-                pauseBtn.style.display = "none";
-                stopBtn.style.display = "none";
-                PlayorPause.style.display = "none";
-                currentFile.innerHTML = "影片已關閉";
-                fetch('{% url "control player" %}',{
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
+                var currentFile = document.getElementById("current_playing_file"); // 取得id為current_playing_file的標籤
+                var pauseBtn = document.getElementById("pause-btn"); // 取得id為pause-btn的標籤
+                var stopBtn = document.getElementById("stop-btn"); // 取得id為stop-btn的標籤
+                var PlayorPause = document.getElementById("PlayorPause"); // 取得id為PlayorPause的標籤
+                pauseBtn.style.display = "none"; // 隱藏暫停按鈕
+                stopBtn.style.display = "none"; // 隱藏停止按鈕
+                PlayorPause.style.display = "none"; // 隱藏 "播放中"
+                currentFile.innerHTML = "影片已關閉"; // 把currentFile裡面的文字改成影片已關閉
+                // 傳送停止的指令給後端
+                fetch('{% url "control player" %}',{ // 傳送指令給叫control player的url
+                    method: 'POST', // 使用POST方法
+                    headers: { // 傳送的資料格式
+                        'Content-Type': 'application/json', // json格式
+                        'X-CSRFToken': '{{ csrf_token }}' // csrf_token
                     },
-                    body: JSON.stringify({'action': 'Stop'})
+                    body: JSON.stringify({'action': 'Stop'}) // 傳送Stop的action給後端
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
+                    .then(response => response.json()) // 回傳的資料轉成json格式
+                    .then(data => { // 回傳的資料
+                        console.log(data); // 印出回傳的資料
                     })
-                    .catch(error => {
-                        console.log(error);
+                    .catch(error => {  // 如果有錯誤
+                        console.log(error); // 印出錯誤
                     })
-                    .finally(() => {
-                        stop_btn.disabled = false;
+                    .finally(() => { // 結束後
+                        stop_btn.disabled = false; // 停止按鈕可以按
                     })
             }
         </script>

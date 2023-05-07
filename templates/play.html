@@ -4,14 +4,177 @@
         <meta charset="utf-8">
         <title>Play</title>
         <style>
-            #pause-btn, #stop-btn, #PlayorPause {
+            #pause-btn, #stop-btn, #PlayorPause, #progressBar{
                 display: none;
             }
         </style>
+        <!-- 引入jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        
+    </head>
+    <style>
+        .progessbar {
+        position: relative;
+        text-align: center;
+        border: 1px solid black;
+        height: 16px;
+        width: 250px;
+        }
+
+        .progessbar .text {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        line-height: 16px;
+        z-index: 10;
+        }
+
+        .progessbar .bar_2 {
+        position: absolute;
+        /* 為了便於同時展示多個進度條，right跟left直接寫在html style裡。 */
+        /* 實務上可以將style移除，改用下面的css來達成right或left的設定。 */
+        /*right: 0;*/
+        /*left: 0;*/
+        top: 0;
+        height: 16px;
+        background-color: lightgreen;
+        }
+
+        .back-btn button{
+            font-size: 20px;
+            margin-top: 10px;
+        }
+    </style>
+    <body>
+        <h1>File List</h1>
+        <ul>
+            {% for file in media_files %}
+            <li>
+                {{ file|slice:"7:" }}
+            </li>
+
+            <form action="javascript:void(0);" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="file" value="{{ file }}">
+                <!-- 在下面那個按鈕，增加一個觸發事件 -->
+                <button id="playButton" onclick="playFile(this);" type="submit" name="playButton" value="{{file|slice:'7:'}}" formaction="{{ file }}/" target="_blank">Play</button> 
+                
+                <button onclick="return confirmDelete();" type="submit" formaction="/delete/">Delete</button>  
+            </form>
+            
+            {% endfor %}
+
+            <!--a button turn back to upload.html-->
+            <h2><a href="/upload/">Back to Upload</a></h2>
+        </ul>
+
+        <div>
+            <h3 id="current_playing_file"></h3>
+            <h4 id="PlayorPause"></h4>
+            <button id="pause-btn" onclick="pause(event);"><p id="pause_text"></p></button>
+            <button id="stop-btn" onclick="stop_playing(event)"><p>關閉</p></button>
+        </div>
+
+        <div class="progessbar" id="progressBar">
+            <div class="text"></div>
+            <div class="bar_2" style="left: 0;"></div>
+        </div>
+
         <script>
+            var timer = null; // 計時器
+            var index = 0; // 計時器的秒數
+            var pause_count = 1;  // 暫停按鈕的次數，用來判斷是暫停還是繼續播放
+            var duration = 1; //宣告duration為1，避免index >= duration，一開就被判斷為時間到，導致無法播放
+            var playButton = document.getElementById("playButton"); // 取得id為play-btn的標籤
+
+            $('#playButton').click(function(){ // 當按下playButton時
+            
+                var progessbar= document.getElementById("progressBar"); // 取得id為progressBar的標籤
+                progessbar.style.display= "block"; // 顯示進度條
+                fetch('{% url "get duration" %}',{ // 傳送指令給叫control player的url
+                    method: 'POST', // 使用POST方法
+                    headers: { // 傳送的資料格式
+                        'Content-Type': 'application/json', // json格式
+                        'X-CSRFToken': '{{ csrf_token }}' // csrf_token
+                    },
+                    body: JSON.stringify({'file_name':playButton.value}) // 傳送檔名給views.py / function get_duration讓它去找檔案的時長
+                })
+                .then(response => response.json()) // 回傳的資料轉成json格式
+                .then(data => { // 回傳的資料
+                    duration = data.duration; // 取得回傳的duration
+                  
+                    if (timer == null){ // 如果計時器是空的 
+                        timer = setInterval(begin, 1000); // 設定計時器，每秒執行一次begin()
+                    }
+                })
+                .catch(error => { // 如果有錯誤
+                    console.log(error); // 印出錯誤
+                })
+            })
+
+            function begin(){
+                index++; //秒數+1
+                var seconds = duration - index; //剩餘秒數 = 總秒數 - 秒數
+                if (index >= duration){ // 如果秒數大於等於總秒數
+                    clearInterval(timer); // 清除計時器
+                    timer = null; // 計時器設為空
+                    index = 0; // 秒數設為0
+                    timer = setInterval(begin, 1000) //重新設定計時器
+                }
+                update(seconds); // 更新進度條
+            }
+            
+            // 更新進度條
+            function update (seconds) {
+                barRenderer(seconds); // 更新進度條的動畫
+                textRenderer(seconds); // 更新進度條的時間文字
+            }
+
+            // 更新進度條的動畫
+            function barRenderer (seconds) {
+                // 遞減計算。要改程遞減的話，就把上面的index++改成index--，並把下面那兩行取消註解。然後把遞增計算的那兩行註解掉。
+                // var percent = (seconds / duration) * 100; // 計算百分比
+                // $(".bar").css("width", percent + "%"); // 更新進度條的寬度
+                
+                // 遞增計算。同上
+                var percent_2 = (1 - (seconds / duration)) * 100;
+                $(".bar_2").css("width", percent_2 + "%");
+            }
+            // 更新進度條的時間文字
+            function textRenderer (seconds) { 
+                var sec = seconds % 60;  // 秒數
+                var min = Math.floor(seconds / 60); // 分鐘數
+
+                /* 兩種作法都可以 */
+                //min = min > 9 ? min : "0" + min;
+                //sec = sec > 9 ? sec : "0" + sec;  
+                min = min.toString().padStart(2, '0'); // 補0
+                sec = sec.toString().padStart(2, '0'); // 補0
+                
+                $(".text").text(min + ":" + sec); // 更新進度條的時間文字
+            }
+            $('#pause-btn').click(function(){ // 當按下暫停按鈕時
+                pause_count++; // 暫停次數+1，pause_count起始值為1
+                if (pause_count % 2 == 1){ // 如果暫停次數是偶數，表示要播放
+                    if (timer == null){ // 如果計時器是空的
+                    timer = setInterval(begin, 1000) // 設定計時器，每秒執行一次begin()
+                    }  
+                }
+                else{ // 如果暫停次數是奇數，表示要暫停
+                    clearInterval(timer); // 清除計時器
+                    timer = null; // 計時器設為空
+                }
+            });
+            $('#stop-btn').click(function(){ // 當按下停止按鈕時
+                clearInterval(timer); // 清除計時器
+                timer = null; // 計時器設為空
+                index = 0; // 秒數設為0
+            });
+
             var count = 0; // 計算暫停次數
 
-            // 確認是否要刪除檔案
+            // 確認是否要刪除檔案，這會被用在刪除檔案的按鈕上
             function confirmDelete() {
                 return confirm("確定要刪除嗎？");
             }
@@ -23,6 +186,8 @@
                 var stopBtn = document.getElementById("stop-btn"); // 取得id為stop-btn的標籤
                 var pauseText = document.getElementById("pause_text"); // 取得id為pause_text的標籤
                 var PlayorPause = document.getElementById("PlayorPause");// 取得id為PlayorPause的標籤
+                var playButton = document.getElementById("playButton"); // 取得id為play-btn的標籤
+  
                 pauseBtn.style.display = "inline"; // 顯示暫停按鈕
                 stopBtn.style.display = "inline"; // 顯示停止按鈕
                 PlayorPause.style.display = "inline"; // 顯示播放中
@@ -37,7 +202,10 @@
                 var pauseBtn = document.getElementById("pause-btn"); // 取得id為pause-btn的標籤
                 var pauseText = document.getElementById("pause_text"); // 取得id為pause_text的標籤
                 var PlayorPause = document.getElementById("PlayorPause"); // 取得id為PlayorPause的標籤
+                var playButton = document.getElementById("playButton"); // 取得id為play-btn的標籤
+
                 pauseBtn.disabled = true; // 暫停按鈕不能按
+                
                 count += 1; // 暫停次數+1
                 //暫停次數為偶數時，表示按了兩次，應該回復原狀，暫停按鈕文字改成暫停，播放中文字改成播放中
                 if (count % 2 == 0){
@@ -60,7 +228,7 @@
                 })
                     .then(response => response.json()) // 回傳的資料轉成json格式
                     .then(data => { // 回傳的資料
-                        console.log(data); // 印出回傳的資料
+                        console.log('control player :',data); // 印出回傳的資料
                     })
                     .catch(error => { // 如果有錯誤
                         console.log(error); // 印出錯誤
@@ -78,6 +246,10 @@
                 var pauseBtn = document.getElementById("pause-btn"); // 取得id為pause-btn的標籤
                 var stopBtn = document.getElementById("stop-btn"); // 取得id為stop-btn的標籤
                 var PlayorPause = document.getElementById("PlayorPause"); // 取得id為PlayorPause的標籤
+                var progessbar= document.getElementById("progressBar");
+                var playButton = document.getElementById("playButton"); // 取得id為play-btn的標籤
+
+                progessbar.style.display= "none"; // 隱藏進度條
                 pauseBtn.style.display = "none"; // 隱藏暫停按鈕
                 stopBtn.style.display = "none"; // 隱藏停止按鈕
                 PlayorPause.style.display = "none"; // 隱藏 "播放中"
@@ -99,40 +271,9 @@
                         console.log(error); // 印出錯誤
                     })
                     .finally(() => { // 結束後
-                        stop_btn.disabled = false; // 停止按鈕可以按
+                        stopBtn.disabled = false; // 停止按鈕可以按
                     })
             }
         </script>
-    </head>
-    <body>
-        <h1>File List</h1>
-        <ul>
-            {% for file in media_files %}
-
-            <li>
-                {{ file|slice:"7:" }}
-            </li>
-
-            <form action="javascript:void(0);" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="file" value="{{ file }}">
-                <!-- 在下面那個按鈕，增加一個觸發事件 -->
-                <button onclick="playFile(this)" type="submit" name="playButton" value="{{file|slice:'7:'}}" formaction="{{ file }}/" target="_blank">Play</button> 
-                
-                <button onclick="return confirmDelete();" type="submit" formaction="/delete/">Delete</button>  
-            </form>
-            
-            {% endfor %}
-
-            <!--a button turn back to upload.html-->
-            <h2><a href="/upload/">Back to Upload</a></h2>
-        </ul>
-        <div>
-            <h3 id="current_playing_file"></h3>
-            <h4 id="PlayorPause"></h4>
-            <button id="pause-btn" onclick="pause(event)"><p id="pause_text"></p></button>
-            <button id="stop-btn" onclick="stop_playing(event)"><p>關閉</p></button>
-            
-        </div>
     </body>
 </html>

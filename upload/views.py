@@ -7,6 +7,7 @@ import os
 import subprocess
 import json
 import signal
+import cv2
 
 # Class for verify if the file is selected in function of upload_file
 # 確認是否有選擇檔案
@@ -75,7 +76,7 @@ def show_file(request, file_path):
         subprocess.run(['open', file_full_path]) # MacOS
         subprocess.run(['start', '', file_full_path], shell=True) # Windows
         """
-
+        
         # 開啟檔案成功，返回上一頁，不然路徑會變成檔名
         return HttpResponse('<script>window.history.back();</script>')
 
@@ -139,3 +140,21 @@ def control_player(request):
                     os.kill(pid, signal.SIGKILL)
 
     return JsonResponse({'message':'success'}) # 返回成功訊息
+
+def get_duration(request): # 取得影片長度
+    if request.method == 'POST': # 當請求為POST的時候
+        # 取得請求的資料
+        data = json.loads(request.body)
+        file_path = data.get('file_name') # 取得檔案名稱
+
+        file_full_path = os.path.join(settings.MEDIA_ROOT, file_path) # 取得檔案完整路徑
+        cap = cv2.VideoCapture(file_full_path) # 開啟檔案
+        if cap.isOpened(): # 如果檔案開啟成功
+            rate = cap.get(5) # 取得影片的幀率
+            frame_num =cap.get(7) # 取得影片的總幀數
+            duration = frame_num/rate # 計算影片長度
+            
+            data = {'duration':duration} # 弄成字典
+            return JsonResponse(data) # 返回影片長度
+    else:
+        return JsonResponse({'message':'sending duration fail !'}) # 如果失敗的話，返回失敗訊息

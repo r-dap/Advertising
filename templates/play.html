@@ -58,15 +58,15 @@
                 {% csrf_token %}
                 <input type="hidden" name="file" value="{{ file }}">
                 <!-- 在下面那個按鈕，增加一個觸發事件 -->
-                <button id="playButton" onclick="playFile(this);" type="submit" name="playButton" value="{{file|slice:'7:'}}" formaction="{{ file }}/" target="_blank">Play</button> 
+                <button class="playButton" id="playButton" onclick="playFile(this);" type="submit" name="playButton" value="{{file|slice:'7:'}}" formaction="{{ file }}/" target="_blank">Play</button> 
                 
                 <button onclick="return confirmDelete();" type="submit" formaction="/delete/">Delete</button>  
             </form>
             
             {% endfor %}
 
-            <!--a button turn back to upload.html-->
-            <h2><a href="/upload/">Back to Upload</a></h2>
+            <!--a button turn back to index.html-->
+            <h2><a href="/">回首頁</a></h2>
         </ul>
 
         <div>
@@ -88,7 +88,7 @@
             var duration = 1; //宣告duration為1，避免index >= duration，一開就被判斷為時間到，導致無法播放
             var playButton = document.getElementById("playButton"); // 取得id為play-btn的標籤
 
-            $('#playButton').click(function(){ // 當按下playButton時
+            $('.playButton').click(function(){ // 當按下playButton時
             
                 var progessbar= document.getElementById("progressBar"); // 取得id為progressBar的標籤
                 progessbar.style.display= "block"; // 顯示進度條

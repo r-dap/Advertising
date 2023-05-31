@@ -158,3 +158,6 @@ def get_duration(request): # 取得影片長度
             return JsonResponse(data) # 返回影片長度
     else:
         return JsonResponse({'message':'sending duration fail !'}) # 如果失敗的話，返回失敗訊息
+
+def navigation(request):
+    return render(request, 'navigation.html')

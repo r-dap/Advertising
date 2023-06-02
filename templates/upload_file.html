@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h3>檔案上傳</h3>
     <form method="post" enctype="multipart/form-data" >
         {% csrf_token %}
         <input type="file" name="file" autocomplete="off" required multiple>
         <button type="submit">上傳</button>
-        <button onclick="location.href='play'">檔案列表</button>
+        <button onclick="location.href='/'">回首頁</button>
     </form>
     {% if message %}
         <p>{{ message }}</p>

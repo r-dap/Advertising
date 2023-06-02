@@ -12,7 +12,7 @@ import cv2
 # Class for verify if the file is selected in function of upload_file
 # 確認是否有選擇檔案
 class UploadFileForm(forms.Form):
-    file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    file = forms.FileField(widget=forms.ClearableFileInput(attrs={'allow_multiple_upload': True}))
 
 # Home page
 def index(request):
@@ -158,3 +158,6 @@ def get_duration(request): # 取得影片長度
             return JsonResponse(data) # 返回影片長度
     else:
         return JsonResponse({'message':'sending duration fail !'}) # 如果失敗的話，返回失敗訊息
+
+def navigation(request):
+    return render(request, 'navigation.html')

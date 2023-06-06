@@ -1,9 +1,55 @@
 <!DOCTYPE html>
 <html>
+    <style>
+        html, body {
+          height: 100%;
+        }
+        .container {
+          height: 80%;
+          width: 80%;
+          position: absolute;
+          top: 5%;
+          left: 10%;
+          background-color: #eee;
+        }
+        img { 
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
     <head">
-        <title>Navigation</title>
+        <title>Map</title>
     </head>
     <body>
-        <h1>歡迎使用語音導航</h1>
+        <div class="container">
+            {% load static %}
+            <img src="{% static 'upload/map.jpg' %}">
+            <canvas id="canvas_i"></canvas>
+        </div>
+        <h1>地圖</h1>
+        <button onclick="location.href='/'">回首頁</button>
     </body>
+    <script>
+        var canvas2 = document.getElementById("canvas_i");
+        var ctx2 = canvas2.getContext("2d");
+        // draw a red dot on the second canvas at the center
+        var x = canvas2.width / 2; // get the x coordinate of the center
+        var y = canvas2.height / 2; // get the y coordinate of the center
+
+        // draw a red circle with radius of 5 pixels
+        ctx2.fillStyle = "blue";
+        ctx2.beginPath();
+        console.log(x,y)
+        ctx2.arc(x,y, 1, 0, Math.PI*2);
+        ctx2.fill();
+    </script>
 </html>
